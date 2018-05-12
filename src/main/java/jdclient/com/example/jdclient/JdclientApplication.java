@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.http.*;
 import java.lang.*;
 
+
 // 1 创建spring.boot 项目作为客户端程序自动运行
 // 2 调用远程webpai获取Token值
 
@@ -35,15 +36,17 @@ public class JdclientApplication {
         System.out.println("-----------------------Start VistApi-----------------------");
         HttpClient httpClient = new DefaultHttpClient();
 
-        HttpPost httpPost = new HttpPost("http://localhost:8080/token/checkIn?name=test");
+        HttpPost httpPost = new HttpPost("http://localhost:8080/token/checkIn");
         httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-        String auth = "user" + ":" + "pwd";
+        String auth = "wangyg" + ":" + "123456";
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
         String authHeader = "Bearer " + new String(encodedAuth);
+        // String authHeader = "Basic " + new String(encodedAuth);
+
         httpPost.setHeader("Authorization", authHeader);
         //set params
         List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("wangyg", "123456"));
+        params.add(new BasicNameValuePair("name", "inputParam"));
 
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -64,7 +67,7 @@ public class JdclientApplication {
         try {
             HttpEntity entity = response.getEntity();
             temp = EntityUtils.toString(entity, "UTF-8");
-            System.out.println("Response value is: "+temp);
+            System.out.println("#####################Response value is#####################: "+temp);
         } catch (Exception e) {
             System.out.println("Exception httpClient.execute\n"+e.getMessage());
         }
