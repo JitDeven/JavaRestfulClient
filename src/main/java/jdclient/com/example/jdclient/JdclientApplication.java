@@ -58,12 +58,11 @@ public class JdclientApplication {
     private String TokenUrl;
 
     public static void main(String[] args) {
-        // VistApi();
-        GetToken();
+        VistVoice();
         SpringApplication.run(JdclientApplication.class, args);
     }
 
-    private static void GetToken() {
+    private static String GetToken() {
         HttpHelp _httpHelp = new HttpHelp();
         String userToken = "";
         HttpClient httpClient = new DefaultHttpClient();
@@ -71,10 +70,10 @@ public class JdclientApplication {
 
             String password = _httpHelp.getBase64(_httpHelp.getSha1("JdEdipg537$"));
             System.out.println(password);
-            String TokenTestUrl="http://ediwstest.jd.com/services/auth/user";
-            String TokenProduUrl="http://ediws.jd.com/services/auth/user";
+            String TokenTestUrl = "http://ediwstest.jd.com/services/auth/user";
+            String TokenProduUrl = "http://ediws.jd.com/services/auth/user";
 
-            HttpGet req = new HttpGet(TokenProduUrl+"?username=pg&password=" + password);
+            HttpGet req = new HttpGet(TokenProduUrl + "?username=pg&password=" + password);
             req.addHeader("Accept", "application/json");
             HttpResponse resp = httpClient.execute(req);
             HttpEntity entity = resp.getEntity();
@@ -91,24 +90,35 @@ public class JdclientApplication {
                 System.out.println("result:" + json.get("result").getAsString());
             }
 
+            return userToken;
+
         } catch (IOException ex) {
             System.out.println("发生异常:" + ex);
         }
         System.out.println("-----------------------End GetToken-----------------------");
-        // if (userToken != "") {
+        return userToken;
+    }
+
+    private static  void VistVoice()
+    {
+        HttpHelp _httpHelp = new HttpHelp();
+        HttpClient httpClient = new DefaultHttpClient();
+
+        String userToken=GetToken();
+        // if (String != "") {
         if (true) {
             // 发票核销
             HttpPost httpPost = new HttpPost("http://ediws.jd.com/services/finance/verificationInvoice");
             // httpPost.setHeader("Content-Type", "application/json;charset=UTF-8");
-            httpPost.setHeader("Content-Type", "application/text");
+            httpPost.setHeader("Content-Type", "application/xml");
             userToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJIS7FMNTAw101JTTPQNUm0tNS1NE02100zMDJKMjRNTDFOMlLSUcpMLFGyMjQ1NDIxNzCyMNNRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaamZmYWZrUAAAAA__8._bF8TFgw4e2YZNaM0qqIpYjMTeAAFWqBg0UQsgo0HIt44DeCoLS5gvKlKxaEhInWeWypAyOX4n8BLG99SnPRDQ";
             httpPost.setHeader("Authorization", "Bearer " + userToken);
 
             HttpResponse response = null;
             try {
-                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                 //  需要向京东确认requestbody具体的名称，2 TOken验证的值
-                 params.add(new BasicNameValuePair("requestbody", "test wyg"));
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                //  需要向京东确认requestbody具体的名称，2 TOken验证的值
+                params.add(new BasicNameValuePair("requestbody", HttpHelp.InVoiceXml()));
                 httpPost.setEntity(new UrlEncodedFormEntity(params));
                 response = httpClient.execute(httpPost);
             } catch (Exception e) {
