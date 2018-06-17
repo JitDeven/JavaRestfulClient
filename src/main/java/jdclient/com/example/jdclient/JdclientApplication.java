@@ -1,11 +1,16 @@
 package jdclient.com.example.jdclient;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import java.io.UnsupportedEncodingException;
+
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.entity.StringEntity;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import ModelView.*;
@@ -34,17 +39,10 @@ import java.lang.*;
 import org.springframework.beans.factory.annotation.Value;
 
 // JSON
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-
 import org.apache.http.auth.*;
-// 2 调用远程webpai获取Token值
-// 3 每次请求时添加TokenToken
 
 @SpringBootApplication
 public class JdclientApplication {
@@ -57,20 +55,25 @@ public class JdclientApplication {
     @Value("${jdapi.token.url}")
     private String TokenUrl;
 
+    @Value("${jdapi.service.url.voice}")
+    private String InvoiceUrl;
+
     public static void main(String[] args) {
         VistVoice();
+        VistAccount();
         SpringApplication.run(JdclientApplication.class, args);
     }
 
+    /*
+    * 动态获取Token
+    * */
     private static String GetToken() {
         HttpHelp _httpHelp = new HttpHelp();
         String userToken = "";
         HttpClient httpClient = new DefaultHttpClient();
         try {
-
-            String password = _httpHelp.getBase64(_httpHelp.getSha1("JdEdipg537$"));
+            String password = _httpHelp.getSha1("JdEdipg537$");
             System.out.println(password);
-            String TokenTestUrl = "http://ediwstest.jd.com/services/auth/user";
             String TokenProduUrl = "http://ediws.jd.com/services/auth/user";
 
             HttpGet req = new HttpGet(TokenProduUrl + "?username=pg&password=" + password);
@@ -83,9 +86,10 @@ public class JdclientApplication {
             //创建json解析器
             JsonParser parse = new JsonParser();
             JsonObject json = (JsonObject) parse.parse(resultJson);
-            if (json.get("result").getAsString() == "Success") {
+            if (json.get("result").getAsString().equals("Success")) {
                 System.out.println("token:" + json.get("token").getAsString());
                 userToken = json.get("token").getAsString();
+                System.out.println("获取Token:"+userToken);
             } else {
                 System.out.println("result:" + json.get("result").getAsString());
             }
@@ -99,87 +103,74 @@ public class JdclientApplication {
         return userToken;
     }
 
+    /**
+     * 发票核销
+     */
     private static  void VistVoice()
     {
         HttpHelp _httpHelp = new HttpHelp();
         HttpClient httpClient = new DefaultHttpClient();
-
         String userToken=GetToken();
-        // if (String != "") {
-        if (true) {
-            // 发票核销
+        if (!userToken .equals("")) {
+
             HttpPost httpPost = new HttpPost("http://ediws.jd.com/services/finance/verificationInvoice");
-            // httpPost.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpPost.setHeader("Content-Type", "application/xml");
-            userToken = "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJIS7FMNTAw101JTTPQNUm0tNS1NE02100zMDJKMjRNTDFOMlLSUcpMLFGyMjQ1NDIxNzCyMNNRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaamZmYWZrUAAAAA__8._bF8TFgw4e2YZNaM0qqIpYjMTeAAFWqBg0UQsgo0HIt44DeCoLS5gvKlKxaEhInWeWypAyOX4n8BLG99SnPRDQ";
             httpPost.setHeader("Authorization", "Bearer " + userToken);
 
             HttpResponse response = null;
             try {
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                //  需要向京东确认requestbody具体的名称，2 TOken验证的值
-                params.add(new BasicNameValuePair("requestbody", HttpHelp.InVoiceXml()));
-                httpPost.setEntity(new UrlEncodedFormEntity(params));
-                response = httpClient.execute(httpPost);
-            } catch (Exception e) {
-                System.out.println("Exception httpClient.execute\n" + e.getMessage());
-            }
+                StringEntity strEntity = new StringEntity(HttpHelp.InVoiceXml(), "utf-8");
+                httpPost.setEntity(strEntity);
 
-            String temp = "";
-            try {
-                HttpEntity entity = response.getEntity();
-                temp = EntityUtils.toString(entity, "UTF-8");
-                System.out.println("发票核销返回的结果: " + temp);
+                response = httpClient.execute(httpPost);
+                String temp = "";
+                try {
+                    HttpEntity entity = response.getEntity();
+                    temp = EntityUtils.toString(entity, "UTF-8");
+                    System.out.println("发票核销返回的结果: " + temp);
+                } catch (Exception e) {
+                    System.out.println("Exception httpClient.execute\n" + e.getMessage());
+                }
             } catch (Exception e) {
-                System.out.println("Exception httpClient.execute\n" + e.getMessage());
-            }
+                System.out.println("发票核销异常\n" + e.getMessage()); }
+        }
+        else {
+            System.out.println("发票核销Token获取失败");
         }
     }
 
-    //http://www.baeldung.com/httpclient-post-http-request
-    private static void VistApi() {
-        System.out.println("-----------------------Start VistApi-----------------------");
+    /**
+     * 对账
+     */
+    private static  void VistAccount() {
+        HttpHelp _httpHelp = new HttpHelp();
         HttpClient httpClient = new DefaultHttpClient();
-        /// TODO:读取配置文件https://blog.csdn.net/qq_32786873/article/details/52840745
-        HttpPost httpPost = new HttpPost("http://localhost:8080/token/checkIn");
-        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+        String userToken = GetToken();
+        if (!userToken.equals("")) {
 
-        /// TODO:验证方式一：Basic或Bearer
-        String auth = "wangyg" + ":" + "123456";
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
-        String authHeader = "Basic " + new String(encodedAuth);
-        // String authHeader = "Basic " + new String(encodedAuth);
-        httpPost.setHeader("Authorization", authHeader);
+            HttpPost httpPost = new HttpPost("http://ediws.jd.com/services/finance/accountCheck");
+            httpPost.setHeader("Content-Type", "application/xml");
+            httpPost.setHeader("Authorization", "Bearer " + userToken);
 
-        /// TODO:设置参数
-        //set params
-        // List<NameValuePair> params = new ArrayList<NameValuePair>();
-        /// params.add(new BasicNameValuePair("name", "inputParam"));
+            HttpResponse response = null;
+            try {
+                StringEntity strEntity = new StringEntity(HttpHelp.AccountXml(), "utf-8");
+                httpPost.setEntity(strEntity);
 
-        // try {
-        //     httpPost.setEntity(new UrlEncodedFormEntity(params));
-        // } catch (Exception e) {
-        //     System.out.println("Exception httpPost.setEntity");
-        // }
-
-        //response
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (Exception e) {
-            System.out.println("Exception httpClient.execute\n" + e.getMessage());
+                response = httpClient.execute(httpPost);
+                String temp = "";
+                try {
+                    HttpEntity entity = response.getEntity();
+                    temp = EntityUtils.toString(entity, "UTF-8");
+                    System.out.println("对账返回的结果: " + temp);
+                } catch (Exception e) {
+                    System.out.println("Exception httpClient.execute\n" + e.getMessage());
+                }
+            } catch (Exception e) {
+                System.out.println("对账异常\n" + e.getMessage());
+            }
+        } else {
+            System.out.println("对账Token获取失败");
         }
-
-        //get response into String
-        String temp = "";
-        try {
-            HttpEntity entity = response.getEntity();
-            temp = EntityUtils.toString(entity, "UTF-8");
-            System.out.println("#####################Response value is#####################: " + temp);
-        } catch (Exception e) {
-            System.out.println("Exception httpClient.execute\n" + e.getMessage());
-        }
-
-        System.out.println("-----------------------End VistApi-----------------------");
     }
 }

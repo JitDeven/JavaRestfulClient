@@ -1,0 +1,40 @@
+﻿示例用户名: yili
+示例密码: JdEdiYili65$
+passwdDigest = Base64 ( SHA-1 ( password ) )
+获取token url: http://ediws.jd.com/services/auth/user?username={your username: yili}&password={passwdDigest: NZo/26veb5NGKeNzSVcH5IZkT9c=}
+测试环境      ：http://ediwstest.jd.com/services/auth/userwyg
+返回: 
+{
+result: "Success",
+msg: "Auth success",
+ttl: 86400000,
+token: "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJIS7FMNTAw101JTTPQNUm0tNS1NE02100zMDJKMjRNTDFOMlLSUcpMLFGyMjQ1NDIxNzCyMNNRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaamZmYWZrUAAAAA__8._bF8TFgw4e2YZNaM0qqIpYjMTeAAFWqBg0UQsgo0HIt44DeCoLS5gvKlKxaEhInWeWypAyOX4n8BLG99SnPRDQ"
+}
+
+每次请求接口时需要添加http header: Authorization:Bearer + token
+例: Authorization:Bearer eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJIS7FMNTAw101JTTPQNUm0tNS1NE02100zMDJKMjRNTDFOMlLSUcpMLFGyMjQ1NDIxNzCyMNNRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaamZmYWZrUAAAAA__8._bF8TFgw4e2YZNaM0qqIpYjMTeAAFWqBg0UQsgo0HIt44DeCoLS5gvKlKxaEhInWeWypAyOX4n8BLG99SnPRDQ
+TOKEN有效期为1天,在有效期时间内调用refresh可以刷新token,增加有效期1天
+http://ediws.jd.com/services/auth/refresh?token=eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJIS7FMNTAw101JTTPQNUm0tNS1NE02100zMDJKMjRNTDFOMlLSUcpMLFGyMjQ1NDIxNzCyMNNRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaamZmYWZrUAAAAA__8._bF8TFgw4e2YZNaM0qqIpYjMTeAAFWqBg0UQsgo0HIt44DeCoLS5gvKlKxaEhInWeWypAyOX4n8BLG99SnPRDQ
+返回为:
+{
+result: "Success",
+msg: "Token refresh success",
+ttl: 86400000,
+token: "eyJhbGciOiJIUzUxMiIsInppcCI6IkRFRiJ9.eNqqVsoqyVSyUjJItTRJMkg20DVMNk7SNTFOTtW1TEy11E0yMzNNSUw2SEmxMFfSUcpMLFGyMjQ1NDIxNzA3NNFRKi5NAuquzMzJBMkWFwM5Xi4Kri6eCu5B_qEBQMGy1LyU_CLn_JRUhMLUigKIMaam5oaGJrUAAAAA__8.9INcLPocEGHzIrXe05VjOrATJ6GDVHN3Zv5H6c9MUQl6mIpT97jm_RGHEiGPCn9X9GQHUpAWKi2aBw6OpBG_Og"
+}
+
+接口URL: 对账
+生产：http://ediws.jd.com/services/finance/accountCheckwyg
+测试：http://ediwstest.jd.com/services/finance/accountCheckwyg
+
+发票：
+生产：http://ediws.jd.com/services/finance/verificationInvoicewyg
+测试：http://ediwstest.jd.com/services/finance/verificationInvoicewyg
+
+测试环境用户名和密码：
+pgtestwyg
+123456wyg
+
+用户名：pg
+wyg
+密码：JdEdipg537$wyg

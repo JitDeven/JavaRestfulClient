@@ -36,7 +36,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--序列化和反序列化-->
         <dependency>
             <groupId>com.dyuproject.protostuff</groupId>
             <artifactId>protostuff-core</artifactId>
@@ -48,12 +47,6 @@
             <artifactId>protostuff-runtime</artifactId>
             <version>1.0.8</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.httpcomponents</groupId>-->
-            <!--<artifactId>httpclient</artifactId>-->
-            <!--<version>4.1.2</version>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -67,12 +60,6 @@
             <version>3.0.1</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>au.com.dius</groupId>-->
-            <!--<artifactId>pact-jvm-provider-gradle_2.12</artifactId>-->
-            <!--<version>3.5.17</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -83,13 +70,6 @@
             <artifactId>assertj-core</artifactId>
             <version>3.9.1</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
-        <!--<dependency>-->
-            <!--<groupId>org.json</groupId>-->
-            <!--<artifactId>json</artifactId>-->
-            <!--<version>20180130</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
